@@ -13,7 +13,8 @@ class TransacaoFormCubit extends Cubit<TransacaoFormState> {
     String? id,
     required String descricao,
     required String valorText,
-    required TipoTransacao tipo
+    required TipoTransacao tipo,
+    String? categoriaId,
   }) async {
     if (descricao.trim().isEmpty) {
       emit(TransacaoFormError('A descrição não pode ser vazia.'));
@@ -26,11 +27,7 @@ class TransacaoFormCubit extends Cubit<TransacaoFormState> {
       return;
     }
 
-    print('Estado Loading');
-
     emit(TransacaoFormLoading());
-
-    //await Future.delayed(const Duration(seconds: 2));
 
     try {
       if (id != null) {
@@ -39,8 +36,10 @@ class TransacaoFormCubit extends Cubit<TransacaoFormState> {
           descricao: descricao, 
           valor: valor, 
           tipo: tipo, 
-          data: DateTime.now());
-        transacaoCubit.atualizarTransacao(transacaoAtualizada);
+          data: DateTime.now(),
+          categoriaId: categoriaId,
+        );
+        await transacaoCubit.atualizarTransacao(transacaoAtualizada);
         emit(TransacaoFormSuccess("Transação atualizada com sucesso!"));
       } else {
         final dataHoraAtual = DateTime.now();
@@ -49,7 +48,8 @@ class TransacaoFormCubit extends Cubit<TransacaoFormState> {
           descricao: descricao,
           valor: valor,
           tipo: tipo,
-          data: dataHoraAtual
+          data: dataHoraAtual,
+          categoriaId: categoriaId,
         );
 
         await transacaoCubit.adicionarTransacao(novaTransacao);

@@ -71,5 +71,4 @@ class TransacaoRepository {
       throw Exception('Erro ao realizar a exclusão via REST: ${response.body}');
     }
   }
-
 }

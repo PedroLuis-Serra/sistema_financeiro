@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:sistema_financeiro/models/transacao.dart';
 import '../cubits/transacao_form_cubit.dart';
 import '../cubits/transacao_form_state.dart';
+import '../cubits/categoria_cubit.dart';
+import '../cubits/categoria_state.dart';
 import '../models/transacao.dart';
+import '../models/categoria.dart';
 
 class CadastroTransacaoPage extends StatefulWidget {
 
@@ -20,6 +22,7 @@ class _CadastroTransacaoPageState extends State<CadastroTransacaoPage> {
   late final TextEditingController _descricaoController;
   late final TextEditingController _valorController;
   late TipoTransacao _tipoSelecionado;
+  String? _categoriaSelecionada;
 
   bool get _isEdicao => widget.transacaoParaEdicao != null;
 
@@ -33,6 +36,10 @@ class _CadastroTransacaoPageState extends State<CadastroTransacaoPage> {
       text: widget.transacaoParaEdicao?.valor.toStringAsFixed(2) ?? ""
     );
     _tipoSelecionado = widget.transacaoParaEdicao?.tipo ?? TipoTransacao.receita;
+    _categoriaSelecionada = widget.transacaoParaEdicao?.categoriaId;
+
+    // Garante que as categorias estejam carregadas no dropdown
+    context.read<CategoriaCubit>().carregarCategorias();
   }
 
   @override
@@ -74,6 +81,9 @@ class _CadastroTransacaoPageState extends State<CadastroTransacaoPage> {
               } else {
                 _descricaoController.clear();
                 _valorController.clear();
+                setState(() {
+                  _categoriaSelecionada = null;
+                });
               }
               context.read<TransacaoFormCubit>().resertarEstado();
             }
@@ -127,6 +137,34 @@ class _CadastroTransacaoPageState extends State<CadastroTransacaoPage> {
                 ),
                 const SizedBox(height: 20),
 
+                // Campo de seleção de categoria (carregado do banco)
+                BlocBuilder<CategoriaCubit, CategoriaState>(
+                  builder: (context, state) {
+                    final categorias = state is CategoriaLoaded ? state.categorias : <Categoria>[];
+
+                    return DropdownButtonFormField<String>(
+                      value: _categoriaSelecionada,
+                      decoration: const InputDecoration(
+                        labelText: 'Categoria',
+                        prefixIcon: Icon(Icons.category_outlined),
+                        border: OutlineInputBorder(),
+                      ),
+                      items: categorias
+                          .map((categoria) => DropdownMenuItem(
+                                value: categoria.id,
+                                child: Text(categoria.nome),
+                              ))
+                          .toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          _categoriaSelecionada = value;
+                        });
+                      },
+                    );
+                  },
+                ),
+                const SizedBox(height: 20),
+
                 //Botão de salvar
                 BlocBuilder<TransacaoFormCubit, TransacaoFormState>(
                   builder: (context, state) {
@@ -149,7 +187,8 @@ class _CadastroTransacaoPageState extends State<CadastroTransacaoPage> {
                           id: widget.transacaoParaEdicao?.id,
                           descricao: _descricaoController.text, 
                           valorText: _valorController.text, 
-                          tipo: _tipoSelecionado
+                          tipo: _tipoSelecionado,
+                          categoriaId: _categoriaSelecionada,
                         );
                       }, 
                       child: isLoading

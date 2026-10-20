@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'cadastro_transacao_page.dart';
 import 'extrato_trasacao_page.dart';
+import 'cadastro_categoria_page.dart';
 
 class TelaPrincipal extends StatefulWidget {
   
@@ -16,7 +17,8 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
 
   final List<Widget> _telas = [
     const ExtratoTransacaoPage(),
-    const CadastroTransacaoPage()
+    const CadastroTransacaoPage(),
+    const CadastroCategoriaPage(),
   ];
 
   @override
@@ -42,6 +44,10 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
           BottomNavigationBarItem(
             icon: Icon(Icons.add_circle_outline),
             label: 'Novo Lançamento'
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.category_outlined),
+            label: 'Categorias'
           )
         ]
       ),
